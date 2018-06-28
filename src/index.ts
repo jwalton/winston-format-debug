@@ -17,7 +17,7 @@ export interface DebugFormatOptions {
  * Debug formatter intended for logging to console.  This is roughly a port
  * of bunyan-debug-stream.
  */
-export default class DebugFormat {
+export class DebugFormat {
     options: DebugFormatOptions;
     private readonly _processName: string;
     private readonly _maxLevelLength: number;
@@ -94,3 +94,12 @@ export default class DebugFormat {
         return info;
     }
 }
+
+export default function createDebugFormat(options: DebugFormatOptions={}) {
+    return new DebugFormat(options);
+}
+
+//
+// Attach the Colorizer for registration purposes
+//
+export const Format = DebugFormat; // tslint:disable-line

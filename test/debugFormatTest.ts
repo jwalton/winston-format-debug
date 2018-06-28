@@ -3,7 +3,7 @@ import 'mocha';
 import * as path from 'path';
 import sinon from 'sinon';
 import { LEVEL, MESSAGE } from 'triple-beam';
-import { DebugFormatOptions, default as DebugFormat } from '../src';
+import { DebugFormatOptions, default as debugFormat } from '../src';
 import { dateToString } from '../src/utils';
 
 const DEFAULT_OPTIONS : DebugFormatOptions = {
@@ -11,7 +11,7 @@ const DEFAULT_OPTIONS : DebugFormatOptions = {
 };
 
 function doTransform(info: any, options?: DebugFormatOptions) {
-    const format = new DebugFormat(options);
+    const format = debugFormat(options);
     info[LEVEL] = info.level;
     info[MESSAGE] = info.message;
     const result = format.transform(info, options || DEFAULT_OPTIONS);
