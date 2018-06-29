@@ -7,7 +7,7 @@
 
 ## What is it?
 
-This is a format for console logging for [winston](https://github.com/winstonjs/winston).
+This is a format for console logging for [winston > 3.x.x](https://github.com/winstonjs/winston).
 It's based loosely on [bunyan-debug-stream](https://github.com/benbria/bunyan-debug-stream).
 
 ## Usage
