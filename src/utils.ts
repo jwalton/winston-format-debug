@@ -1,3 +1,5 @@
+import colors from 'colors/safe';
+
 export function lpad(str: any, count: number, fill = ' ') {
     str = `${str}`;
     while (str.length < count) {
@@ -12,6 +14,23 @@ export function rpad(str: any, count: number, fill = ' ') {
         str = str + fill;
     }
     return str;
+}
+
+// Applies one or more colors to a message, and returns the colorized message.
+export function applyColors(message: string, colorList: string | string[]) {
+    if(!message) {
+        return message;
+    }
+
+    if(typeof(colorList) === 'string') {
+        message = (colors as any)[colorList](message);
+    } else {
+        for(const color of colorList) {
+            message = (colors as any)[color](message);
+        }
+    }
+
+    return message;
 }
 
 const MONTHS = [

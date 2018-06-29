@@ -22,9 +22,9 @@ const logger = winston.createLogger({
     transports: [
         new winston.transports.Console({
             format: winston.format.combine(
-                winston.format.colorize({message: true}),
                 debugFormat({
                     levels: winston.config.syslog.levels,
+                    colors: winston.config.syslog.colors
                 })
             )
         })
@@ -44,10 +44,37 @@ same `levels` you pass to `winston.createLogger({levels})`.
 The name of the process.  If not specified, `winston-format-debugger` will
 attempt to figure this out from `process.argv`.
 
-### useColor
+### colors
 
-This should be true if you're using color in your output.  This is used to
-"bold" lines in the stack trace that come from "your code".
+Colors to use to colorize things.  If you don't provide this, you can pre-color
+things with `format.colorize()`, although that will only colorize the message:
+
+```js
+new winston.transports.Console({
+    format: winston.format.combine(
+        winston.format.colorize({message: true}),
+        debugFormat({
+            levels: winston.config.syslog.levels
+        })
+    )
+})
+```
+
+### colorizePrefix, colorizeMessage, colorizeValues
+
+`winston-format-debug` logs a message that looks something like this:
+
+```log
+Jun 28 20:55:16 process[7998] INFO: Hello world
+    otherValue: "hello"
+```
+
+`colorizePrefix` controls whether or not the date, process name, and PID are
+colorized (defaults to false).  `colorizeMessage` controls the text of the
+message (defaults to true).  `colorizeValues` controls wether non-message values
+are colorized (defaults to true).
+
+These options are all ignored unless the `colors` option is passed in.
 
 ### basePath
 
@@ -59,3 +86,32 @@ are not.
 
 The maximum number of lines to show in a stack trace.  If not specified,
 defaults to unlimited.
+
+## Prefixers and Stringifiers
+
+[bunyan-debug-stream](https://github.com/benbria/bunyan-debug-stream) has support
+for "prefixers" and "stringifiers" which can be used to customize the log output.
+These are not required in Winston, though, as you can easily write a `format`
+which edits your data.  For example, if you had an `accountName` field, you
+could do the same as a prefixer with:
+
+```js
+import winston from 'winston';
+
+const accountPrefixer = winston.format(info => {
+    info.message = `[${info.account}] ${info.message}`;
+    return info;
+});
+
+const logger = winston.createLogger({
+    transports: [
+        new winston.transports.Console({
+            format: winston.format.combine(
+                accountPrefixer(),
+                debugFormat()
+            )
+        })
+    ]
+});
+
+```

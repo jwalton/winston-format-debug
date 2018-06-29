@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { dateToString, rpad } from './utils';
+import { dateToString, rpad, applyColors } from './utils';
 import { LEVEL, MESSAGE, configs } from 'triple-beam';
 import exceptionFormatter from 'exception-formatter';
 
@@ -7,10 +7,13 @@ const INDENT = '    ';
 
 export interface DebugFormatOptions {
     levels?: {[name: string]: number};
+    colors?: {[name: string]: string | string[]};
     processName?: string;
-    useColor?: boolean;
     basePath?: string;
     maxExceptionLines?: number;
+    colorizePrefix?: boolean;
+    colorizeMessage?: boolean;
+    colorizeValues?: boolean;
 }
 
 /**
@@ -38,31 +41,24 @@ export class DebugFormat {
         this._basepath = process.cwd();
     }
 
-    _formatError(err: Error, options: DebugFormatOptions) : string {
-        const formatOptions = {
-            format: options.useColor ? 'ansi' : 'ascii',
-            colors: false,
-            basepath: options.basePath || this._basepath,
-            maxLines: options.maxExceptionLines
-        };
-
-        const formatted = exceptionFormatter(err, formatOptions);
-
-        return formatted.split('\n').join(`\n${INDENT}`);
-    }
-
-    transform(info: any, options: DebugFormatOptions) {
+    _getPrefix(info: any, options: DebugFormatOptions) {
+        const processName = options.processName || this._processName;
         const date = dateToString(new Date());
-        const level = rpad(`${((info[LEVEL] || info.level) as string).toUpperCase()}:`, this._maxLevelLength + 1);
+        const level: string = info[LEVEL] || info.level || 'info';
         const pid = process.pid;
 
-        // Map of which fields we've used.
-        const consumed : {[field: string]: boolean} = {level: true, message: true};
+        // If `info.level` is defined, use it for the level label - just in
+        // case some previous formatter has colorized it or done something
+        // else exciting.
+        const levelLabel = rpad(`${(info.level || level).toUpperCase()}:`, this._maxLevelLength + 1);
+        return `${date} ${processName}[${pid}] ${levelLabel}`;
+    }
 
+    _getValues(info: any, options: DebugFormatOptions) {
         const values = [];
         for(const key of Object.keys(info)) {
             // Skip fields we don't care about
-            if (consumed[key]) {
+            if (key === 'level' || key === 'message') {
                 continue;
             }
 
@@ -83,13 +79,50 @@ export class DebugFormat {
             }
         }
 
-        const valuesString = values.join('\n');
+        return values;
+    }
 
-        const processName = options.processName || this._processName;
-        info[MESSAGE] = `${date} ${processName}[${pid}] ${level} ${info.message}`;
-        if(valuesString.length) {
-            info[MESSAGE] = `${info[MESSAGE]}\n${valuesString}`;
+    _formatError(err: Error, options: DebugFormatOptions) : string {
+        const formatOptions = {
+            format: options.colors ? 'ansi' : 'ascii',
+            colors: false,
+            basepath: options.basePath || this._basepath,
+            maxLines: options.maxExceptionLines
+        };
+
+        const formatted = exceptionFormatter(err, formatOptions);
+
+        return formatted.split('\n').join(`\n${INDENT}`);
+    }
+
+    transform(info: any, options: DebugFormatOptions) {
+        const level: string = info[LEVEL] || info.level || 'info';
+
+        let prefix = this._getPrefix(info, options);
+        let message = info.message;
+        let valuesString = this._getValues(info, options).join('\n');
+
+        if(options.colors && options.colors[level]) {
+            const colorizePrefix = !!options.colorizePrefix;
+            const colorizeMessage = (!('colorizeMessage' in options)) || options.colorizeMessage;
+            const colorizeValues = (!('colorizeValues' in options)) || options.colorizeValues;
+
+            if(colorizePrefix) {
+                prefix = applyColors(prefix, options.colors[level]);
+            }
+            if(colorizeMessage) {
+                message = applyColors(message, options.colors[level]);
+            }
+            if(colorizeValues && valuesString) {
+                valuesString = applyColors(valuesString, options.colors[level]);
+            }
         }
+
+        let result = `${prefix} ${message}`;
+        if(valuesString.length) {
+            result = `${result}\n${valuesString}`;
+        }
+        info[MESSAGE] = result;
 
         return info;
     }

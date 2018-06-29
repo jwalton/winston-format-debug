@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import * as path from 'path';
 import sinon from 'sinon';
-import { LEVEL, MESSAGE } from 'triple-beam';
+import { LEVEL, MESSAGE, configs } from 'triple-beam';
 import { DebugFormatOptions, default as debugFormat } from '../src';
 import { dateToString } from '../src/utils';
 
@@ -85,6 +85,26 @@ describe('DebugFormat', function() {
 
         expect(result).to.equal(
             `${this.date()} test[${process.pid}] FOO: Hello world!`
+        );
+    });
+
+    it('should colorize a message', function() {
+        const result = doTransform({
+            level: 'info',
+            message: 'Hello world!',
+            account: {name: 'foo'}
+        }, {
+            levels: configs.syslog.levels,
+            colors: configs.syslog.colors,
+            colorizePrefix: true,
+            colorizeMessage: true,
+            colorizeValues: true
+        });
+
+        expect(result).to.equal(
+            `\u001b[32m${this.date()} _mocha[${process.pid}] INFO:   \u001b[39m ` +
+            '\u001b[32mHello world!\u001b[39m\n' +
+            '\u001b[32m    account: {"name":"foo"}\u001b[39m'
         );
     });
 
