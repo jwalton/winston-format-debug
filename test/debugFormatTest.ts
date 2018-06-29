@@ -7,14 +7,16 @@ import { DebugFormatOptions, default as debugFormat } from '../src';
 import { dateToString } from '../src/utils';
 
 const DEFAULT_OPTIONS : DebugFormatOptions = {
-    processName: 'test'
+    processName: 'test',
+    colors: false
 };
 
-function doTransform(info: any, options?: DebugFormatOptions) {
+function doTransform(info: any, options: DebugFormatOptions={}) {
+    const formatOptions = Object.assign({}, DEFAULT_OPTIONS, options);
     const format = debugFormat(options);
     info[LEVEL] = info.level;
     info[MESSAGE] = info.message;
-    const result = format.transform(info, options || DEFAULT_OPTIONS);
+    const result = format.transform(info, formatOptions);
     return result[MESSAGE];
 }
 
@@ -36,7 +38,7 @@ describe('DebugFormat', function() {
         });
 
         expect(result).to.equal(
-            `${this.date()} test[${process.pid}] INFO:   Hello world!`
+            `${this.date()} test[${process.pid}] INFO:    Hello world!`
         );
     });
 
@@ -48,7 +50,7 @@ describe('DebugFormat', function() {
         });
 
         expect(result).to.equal(
-            `${this.date()} test[${process.pid}] INFO:   Hello world!\n` +
+            `${this.date()} test[${process.pid}] INFO:    Hello world!\n` +
             '    account: {"name":"foo"}'
         );
     });
@@ -59,13 +61,12 @@ describe('DebugFormat', function() {
             message: 'Hello world!',
             err: new Error('boom')
         }, {
-            processName: 'test',
             maxExceptionLines: 0,
             basePath: path.resolve(__dirname, '..')
         });
 
         expect(result).to.equal(
-            `${this.date()} test[${process.pid}] INFO:   Hello world!\n` +
+            `${this.date()} test[${process.pid}] INFO:    Hello world!\n` +
             '    err: Error: boom\n' +
             '        [truncated]'
         );
@@ -76,7 +77,6 @@ describe('DebugFormat', function() {
             level: 'foo',
             message: 'Hello world!'
         }, {
-            processName: 'test',
             levels: {
                 foo: 0,
                 bar: 1
@@ -102,7 +102,7 @@ describe('DebugFormat', function() {
         });
 
         expect(result).to.equal(
-            `\u001b[32m${this.date()} _mocha[${process.pid}] INFO:   \u001b[39m ` +
+            `\u001b[32m${this.date()} test[${process.pid}] INFO:   \u001b[39m ` +
             '\u001b[32mHello world!\u001b[39m\n' +
             '\u001b[32m    account: {"name":"foo"}\u001b[39m'
         );

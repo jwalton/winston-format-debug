@@ -7,7 +7,7 @@ const INDENT = '    ';
 
 export interface DebugFormatOptions {
     levels?: {[name: string]: number};
-    colors?: {[name: string]: string | string[]};
+    colors?: {[name: string]: string | string[]} | false;
     processName?: string;
     basePath?: string;
     maxExceptionLines?: number;
@@ -25,6 +25,7 @@ export class DebugFormat {
     private readonly _processName: string;
     private readonly _maxLevelLength: number;
     private readonly _basepath: string;
+    private readonly _colors: {[name: string]: string | string[]} | false;
 
     constructor(options: DebugFormatOptions = {}) {
         this.options = options;
@@ -34,9 +35,12 @@ export class DebugFormat {
             ? path.basename(scriptName, path.extname(scriptName))
             : '';
 
-        const levels = options.levels || configs.npm;
+        const levels = options.levels || configs.npm.levels;
         const levelNames = Object.keys(levels);
         this._maxLevelLength = Math.max.apply(Math, levelNames.map(s => s.length));
+
+        this._colors = options.colors === false ? false
+            : options.colors || configs.npm.colors;
 
         this._basepath = process.cwd();
     }
@@ -102,19 +106,21 @@ export class DebugFormat {
         let message = info.message;
         let valuesString = this._getValues(info, options).join('\n');
 
-        if(options.colors && options.colors[level]) {
+        const colors = options.colors === false ? false
+            : options.colors || this._colors;
+        if(colors && colors[level]) {
             const colorizePrefix = !!options.colorizePrefix;
             const colorizeMessage = (!('colorizeMessage' in options)) || options.colorizeMessage;
             const colorizeValues = (!('colorizeValues' in options)) || options.colorizeValues;
 
             if(colorizePrefix) {
-                prefix = applyColors(prefix, options.colors[level]);
+                prefix = applyColors(prefix, colors[level]);
             }
             if(colorizeMessage) {
-                message = applyColors(message, options.colors[level]);
+                message = applyColors(message, colors[level]);
             }
             if(colorizeValues && valuesString) {
-                valuesString = applyColors(valuesString, options.colors[level]);
+                valuesString = applyColors(valuesString, colors[level]);
             }
         }
 

@@ -34,31 +34,21 @@ const logger = winston.createLogger({
 
 ## Options
 
-### levels
-
-A hash where keys are level names, and values are level numbers.  This is the
-same `levels` you pass to `winston.createLogger({levels})`.
-
 ### processName
 
 The name of the process.  If not specified, `winston-format-debugger` will
 attempt to figure this out from `process.argv`.
 
+### levels
+
+A hash where keys are level names, and values are level numbers.  This is the
+same `levels` you pass to `winston.createLogger({levels})`.  If not specified,
+defaults to `winston.config.npm.levels`.
+
 ### colors
 
-Colors to use to colorize things.  If you don't provide this, you can pre-color
-things with `format.colorize()`, although that will only colorize the message:
-
-```js
-new winston.transports.Console({
-    format: winston.format.combine(
-        winston.format.colorize({message: true}),
-        debugFormat({
-            levels: winston.config.syslog.levels
-        })
-    )
-})
-```
+Colors to use to colorize things.  You can also set `colors` to `false` to disable
+all colors.  If not specified, defaults to `winston.config.npm.colors`.
 
 ### colorizePrefix, colorizeMessage, colorizeValues
 
