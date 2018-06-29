@@ -74,10 +74,10 @@
     "lint-staged": "^7.1.2",
     "markdownlint-cli": "^0.10.0",
     "mocha": "^5.2.0",
-    "nyc": "^11.8.0",
+    "nyc": "^12.0.2",
     "semantic-release": "^15.5.0",
     "sinon": "^6.0.1",
-    "ts-node": "^6.1.1",
+    "ts-node": "^7.0.0",
     "tslint": "^5.10.0",
     "typescript": "^2.9.2",
     "winston": "^3.0.0"
