@@ -4,6 +4,7 @@ import { LEVEL, MESSAGE, configs } from 'triple-beam';
 import exceptionFormatter from 'exception-formatter';
 
 const INDENT = '    ';
+const SKIP_VALUES = ['level', 'message', '@timestamp', 'name'];
 
 export interface DebugFormatOptions {
     levels?: {[name: string]: number};
@@ -47,6 +48,7 @@ export class DebugFormat {
 
     _getPrefix(info: any, options: DebugFormatOptions) {
         const processName = options.processName || this._processName;
+        const loggerName = info.name ? `:${info.name}` : '';
         const date = dateToString(new Date());
         const level: string = info[LEVEL] || info.level || 'info';
         const pid = process.pid;
@@ -55,14 +57,14 @@ export class DebugFormat {
         // case some previous formatter has colorized it or done something
         // else exciting.
         const levelLabel = rpad(`${(info.level || level).toUpperCase()}:`, this._maxLevelLength + 1);
-        return `${date} ${processName}[${pid}] ${levelLabel}`;
+        return `${date} ${processName}${loggerName}[${pid}] ${levelLabel}`;
     }
 
     _getValues(info: any, options: DebugFormatOptions) {
         const values = [];
         for(const key of Object.keys(info)) {
             // Skip fields we don't care about
-            if (key === 'level' || key === 'message') {
+            if(SKIP_VALUES.includes(key)) {
                 continue;
             }
 

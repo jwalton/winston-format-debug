@@ -77,6 +77,12 @@ are not.
 The maximum number of lines to show in a stack trace.  If not specified,
 defaults to unlimited.
 
+## Special fields
+
+* level, message - Defined by winston.
+* @timestamp - If present, this will be ignored.
+* name - Assumed to be the logger name.  This will be printed along with the process name.
+
 ## Prefixers and Stringifiers
 
 [bunyan-debug-stream](https://github.com/benbria/bunyan-debug-stream) has support
