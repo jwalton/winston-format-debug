@@ -108,4 +108,44 @@ describe('DebugFormat', function() {
         );
     });
 
+    it('should truncate long value strings', function() {
+        const terminalWidth = process.stdout.columns || 80;
+        let longValue = 'start';
+        while(longValue.length < terminalWidth) { longValue += '-'; }
+        longValue += 'end';
+
+        const result = doTransform({
+            level: 'info',
+            message: 'Hello',
+            longValue
+        });
+
+        let expected = '    longValue: "start';
+        while(expected.length < terminalWidth - 3) { expected += '-'; }
+        expected += '...';
+
+        expect(result).to.equal(
+            `${this.date()} test[${process.pid}] INFO:    Hello\n` + expected
+        );
+
+    });
+
+    it('should truncate long value strings with specified terminalWidth', function() {
+        const terminalWidth = 70;
+        let longValue = 'start';
+        while(longValue.length < terminalWidth) { longValue += '-'; }
+        longValue += 'end';
+
+        const result = doTransform({
+            level: 'info',
+            message: 'Hello',
+            longValue
+        }, {terminalWidth});
+
+        expect(result).to.equal(
+            `${this.date()} test[${process.pid}] INFO:    Hello\n` +
+            '    longValue: "start----------------------------------------------...');
+
+    });
+
 });

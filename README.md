@@ -77,6 +77,15 @@ are not.
 The maximum number of lines to show in a stack trace.  If not specified,
 defaults to unlimited.
 
+### terminalWidth
+
+The maximum width to print for values (other than `message`).
+
+Any "extra values" in the info object from winston will be printed, but
+each (aside from errors) are truncated to a single line.  If specified, this
+is the width to truncate to.  In a TTY, defaults to `process.stdout.columns`.
+Otherwise, defaults to 80.
+
 ## Special fields
 
 * level, message - Defined by winston.

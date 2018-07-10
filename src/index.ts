@@ -15,6 +15,7 @@ export interface DebugFormatOptions {
     colorizePrefix?: boolean;
     colorizeMessage?: boolean;
     colorizeValues?: boolean;
+    terminalWidth?: number;
 }
 
 /**
@@ -75,10 +76,12 @@ export class DebugFormat {
                 const valueString = value && JSON.stringify(value);
                 if(valueString) {
                     // Make sure value isn't too long.
-                    const cols = process.stdout.columns;
+                    const cols = ('terminalWidth' in this.options)
+                        ? this.options.terminalWidth
+                        : process.stdout.columns || 80;
                     let line = `${INDENT}${key}: ${valueString}`;
                     if(cols && line.length >= cols) {
-                        line = line.slice(cols - 3) + '...';
+                        line = line.slice(0, cols - 3) + '...';
                     }
                     values.push(line);
                 }
