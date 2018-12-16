@@ -75,7 +75,7 @@
     "markdownlint-cli": "^0.13.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
-    "semantic-release": "^15.5.0",
+    "semantic-release": "^15.13.1",
     "sinon": "^7.1.1",
     "ts-node": "^7.0.0",
     "tslint": "^5.10.0",
