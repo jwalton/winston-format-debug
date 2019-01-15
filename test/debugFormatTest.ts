@@ -55,6 +55,23 @@ describe('DebugFormat', function() {
         );
     });
 
+    it('should exclude extra fields with value undefined or null ', function() {
+        const result = doTransform({
+            level: 'info',
+            message: 'Hello world!',
+            zero: 0,
+            not_true: false,
+            exclude_this: undefined,
+            exclude_this_too: null,
+        });
+
+        expect(result).to.equal(
+            `${this.date()} test[${process.pid}] INFO:    Hello world!\n` +
+            '    zero: 0\n' +
+            '    not_true: false'
+        );
+    });
+
     it('should make errors pretty', function() {
         const result = doTransform({
             level: 'info',

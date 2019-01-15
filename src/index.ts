@@ -73,7 +73,7 @@ export class DebugFormat {
             if(value instanceof Error) {
                 values.push(`${INDENT}${key}: ${this._formatError(value, options)}`);
             } else {
-                const valueString = value && JSON.stringify(value);
+                const valueString = value != null && JSON.stringify(value);
                 if(valueString) {
                     // Make sure value isn't too long.
                     const cols = ('terminalWidth' in this.options)
