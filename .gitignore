@@ -7,4 +7,4 @@ node_modules
 /npm-debug.log
 /yarn-error.log
 /yarn.lock
-/.yo-rc.json
+/.yo-rc.jsonpackage-lock.json
