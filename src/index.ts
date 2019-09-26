@@ -11,7 +11,7 @@ export interface DebugFormatOptions {
     colors?: {[name: string]: string | string[]} | false;
     processName?: string;
     basePath?: string;
-    maxExceptionLines?: number;
+    maxExceptionLines?: number | 'auto';
     colorizePrefix?: boolean;
     colorizeMessage?: boolean;
     colorizeValues?: boolean;
