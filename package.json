@@ -9,15 +9,13 @@
   ],
   "scripts": {
     "test": "npm run build && npm run lint && npm run test:unittest",
-    "precommit:test": "npm run build && lint-staged && npm run precommit:unittest",
     "build": "tsc",
     "clean": "rm -rf dist coverage",
     "test:unittest": "tsc -p test && nyc mocha 'test/**/*.@(ts|js)'",
-    "precommit:unittest": "tsc -p test && mocha --reporter progress 'test/**/*.@(ts|js)'",
     "lint": "npm run lint:source && npm run lint:tests",
     "lint:source": "tslint -c tslint.json -t stylish 'src/**/*.ts'",
     "lint:tests": "tslint -c test/tslint.json -t stylish 'test/**/*.ts'",
-    "prepare": "npm run build",
+    "prepare": "husky install && npm run build",
     "prepublishOnly": "npm run build && npm test",
     "semantic-release": "semantic-release"
   },
@@ -78,11 +76,6 @@
     "tslint": "^6.0.0",
     "typescript": "^4.0.2",
     "winston": "^3.0.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run precommit:test"
-    }
   },
   "greenkeeper": {
     "ignore": [
