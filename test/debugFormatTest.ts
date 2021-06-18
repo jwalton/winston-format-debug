@@ -1,17 +1,18 @@
 import { expect } from 'chai';
+import chalk from 'chalk';
 import 'mocha';
 import * as path from 'path';
 import sinon from 'sinon';
-import { LEVEL, MESSAGE, configs } from 'triple-beam';
+import { configs, LEVEL, MESSAGE } from 'triple-beam';
 import { DebugFormatOptions, default as debugFormat } from '../src';
 import { dateToString } from '../src/utils';
 
-const DEFAULT_OPTIONS : DebugFormatOptions = {
+const DEFAULT_OPTIONS: DebugFormatOptions = {
     processName: 'test',
-    colors: false
+    colors: false,
 };
 
-function doTransform(info: any, options: DebugFormatOptions={}) {
+function doTransform(info: any, options: DebugFormatOptions = {}) {
     const formatOptions = Object.assign({}, DEFAULT_OPTIONS, options);
     const format = debugFormat(options);
     info[LEVEL] = info.level;
@@ -20,42 +21,44 @@ function doTransform(info: any, options: DebugFormatOptions={}) {
     return result[MESSAGE];
 }
 
-describe('DebugFormat', function() {
-    beforeEach(function() {
-        const sandbox = this.sandbox = sinon.createSandbox();
+describe('DebugFormat', function () {
+    const defaultChalk = chalk.level;
+
+    beforeEach(function () {
+        const sandbox = (this.sandbox = sinon.createSandbox());
         this.dateSpy = sandbox.spy(global, 'Date');
         this.date = () => dateToString(this.dateSpy.returnValues[0]);
+        chalk.level = 3;
     });
 
-    afterEach(function() {
+    afterEach(function () {
         this.sandbox.restore();
+        chalk.level = defaultChalk;
     });
 
-    it('should format a simple message', function() {
-        const result = doTransform({
-            level: 'info',
-            message: 'Hello world!'
-        });
-
-        expect(result).to.equal(
-            `${this.date()} test[${process.pid}] INFO:    Hello world!`
-        );
-    });
-
-    it('should format a message with some extra fields', function() {
+    it('should format a simple message', function () {
         const result = doTransform({
             level: 'info',
             message: 'Hello world!',
-            account: {name: 'foo'}
+        });
+
+        expect(result).to.equal(`${this.date()} test[${process.pid}] INFO:    Hello world!`);
+    });
+
+    it('should format a message with some extra fields', function () {
+        const result = doTransform({
+            level: 'info',
+            message: 'Hello world!',
+            account: { name: 'foo' },
         });
 
         expect(result).to.equal(
             `${this.date()} test[${process.pid}] INFO:    Hello world!\n` +
-            '    account: {"name":"foo"}'
+                '    account: {"name":"foo"}'
         );
     });
 
-    it('should exclude extra fields with value undefined or null ', function() {
+    it('should exclude extra fields with value undefined or null ', function () {
         const result = doTransform({
             level: 'info',
             message: 'Hello world!',
@@ -67,102 +70,160 @@ describe('DebugFormat', function() {
 
         expect(result).to.equal(
             `${this.date()} test[${process.pid}] INFO:    Hello world!\n` +
-            '    zero: 0\n' +
-            '    not_true: false'
+                '    zero: 0\n' +
+                '    not_true: false'
         );
     });
 
-    it('should make errors pretty', function() {
-        const result = doTransform({
-            level: 'info',
-            message: 'Hello world!',
-            err: new Error('boom')
-        }, {
-            maxExceptionLines: 0,
-            basePath: path.resolve(__dirname, '..')
-        });
+    it('should make errors pretty', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                err: new Error('boom'),
+            },
+            {
+                maxExceptionLines: 0,
+                basePath: path.resolve(__dirname, '..'),
+            }
+        );
 
         expect(result).to.equal(
             `${this.date()} test[${process.pid}] INFO:    Hello world!\n` +
-            '    err: Error: boom\n' +
-            '        [truncated]'
+                '    err: Error: boom\n' +
+                '        [truncated]'
         );
     });
 
-    it('should allow custom levels', function() {
-        const result = doTransform({
-            level: 'foo',
-            message: 'Hello world!'
-        }, {
-            levels: {
-                foo: 0,
-                bar: 1
+    it('should allow custom levels', function () {
+        const result = doTransform(
+            {
+                level: 'foo',
+                message: 'Hello world!',
+            },
+            {
+                levels: {
+                    foo: 0,
+                    bar: 1,
+                },
             }
-        });
-
-        expect(result).to.equal(
-            `${this.date()} test[${process.pid}] FOO: Hello world!`
         );
+
+        expect(result).to.equal(`${this.date()} test[${process.pid}] FOO: Hello world!`);
     });
 
-    it('should colorize a message', function() {
-        const result = doTransform({
-            level: 'info',
-            message: 'Hello world!',
-            account: {name: 'foo'}
-        }, {
-            levels: configs.syslog.levels,
-            colors: configs.syslog.colors,
-            colorizePrefix: true,
-            colorizeMessage: true,
-            colorizeValues: true
-        });
+    it('should colorize a message', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                account: { name: 'foo' },
+            },
+            {
+                levels: configs.syslog.levels,
+                colors: configs.syslog.colors,
+                colorizePrefix: true,
+                colorizeMessage: true,
+                colorizeValues: true,
+            }
+        );
 
         expect(result).to.equal(
             `\u001b[32m${this.date()} test[${process.pid}] INFO:   \u001b[39m ` +
-            '\u001b[32mHello world!\u001b[39m\n' +
-            '\u001b[32m    account: {"name":"foo"}\u001b[39m'
+                '\u001b[32mHello world!\u001b[39m\n' +
+                '\u001b[32m    account: {"name":"foo"}\u001b[39m'
         );
     });
 
-    it('should truncate long value strings', function() {
+    it('should colorize a message with a hex code', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                account: { name: 'foo' },
+            },
+            {
+                levels: configs.syslog.levels,
+                colors: { info: '#aa00ff' },
+                colorizePrefix: true,
+                colorizeMessage: true,
+                colorizeValues: true,
+            }
+        );
+
+        expect(result).to.equal(
+            `\u001b[38;2;170;0;255m${this.date()} test[${process.pid}] INFO:   \u001b[39m ` +
+                `\u001b[38;2;170;0;255mHello world!\u001b[39m\n` +
+                `\u001b[38;2;170;0;255m    account: {"name":"foo"}\u001b[39m`
+        );
+    });
+
+    it('should colorize a message with a Winston code', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                account: { name: 'foo' },
+            },
+            {
+                levels: configs.syslog.levels,
+                colors: { info: 'cyanBG' },
+                colorizePrefix: true,
+                colorizeMessage: true,
+                colorizeValues: true,
+            }
+        );
+
+        expect(result).to.equal(
+            `\u001b[46m${this.date()} test[${process.pid}] INFO:   \u001b[49m ` +
+                `\u001b[46mHello world!\u001b[49m\n` +
+                `\u001b[46m    account: {"name":"foo"}\u001b[49m`
+        );
+    });
+
+    it('should truncate long value strings', function () {
         const terminalWidth = process.stdout.columns || 80;
         let longValue = 'start';
-        while(longValue.length < terminalWidth) { longValue += '-'; }
+        while (longValue.length < terminalWidth) {
+            longValue += '-';
+        }
         longValue += 'end';
 
         const result = doTransform({
             level: 'info',
             message: 'Hello',
-            longValue
+            longValue,
         });
 
         let expected = '    longValue: "start';
-        while(expected.length < terminalWidth - 3) { expected += '-'; }
+        while (expected.length < terminalWidth - 3) {
+            expected += '-';
+        }
         expected += '...';
 
-        expect(result).to.equal(
-            `${this.date()} test[${process.pid}] INFO:    Hello\n` + expected
-        );
-
+        expect(result).to.equal(`${this.date()} test[${process.pid}] INFO:    Hello\n` + expected);
     });
 
-    it('should truncate long value strings with specified terminalWidth', function() {
+    it('should truncate long value strings with specified terminalWidth', function () {
         const terminalWidth = 70;
         let longValue = 'start';
-        while(longValue.length < terminalWidth) { longValue += '-'; }
+        while (longValue.length < terminalWidth) {
+            longValue += '-';
+        }
         longValue += 'end';
 
-        const result = doTransform({
-            level: 'info',
-            message: 'Hello',
-            longValue
-        }, {terminalWidth});
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello',
+                longValue,
+            },
+            { terminalWidth }
+        );
 
         expect(result).to.equal(
             `${this.date()} test[${process.pid}] INFO:    Hello\n` +
-            '    longValue: "start----------------------------------------------...');
-
+                '    longValue: "start----------------------------------------------...'
+        );
     });
-
 });

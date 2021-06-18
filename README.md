@@ -48,7 +48,10 @@ defaults to `winston.config.npm.levels`.
 ### colors
 
 Colors to use to colorize things.  You can also set `colors` to `false` to disable
-all colors.  If not specified, defaults to `winston.config.npm.colors`.
+all colors.  If not specified, defaults to `winston.config.npm.colors`.  You can
+specify any color from [the Winston colors](https://github.com/winstonjs/winston#using-custom-logging-levels),
+or any of the standard colors or modifiers from [chalk](https://github.com/chalk/chalk),
+as well as hex codes.
 
 ### colorizePrefix, colorizeMessage, colorizeValues
 
