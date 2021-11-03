@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import chalk from 'chalk';
-import 'mocha';
 import * as path from 'path';
-import sinon from 'sinon';
 import { configs, LEVEL, MESSAGE } from 'triple-beam';
 import { DebugFormatOptions, default as debugFormat } from '../src';
 import { dateToString } from '../src/utils';
+
+const NOW = 1635964932940;
 
 const DEFAULT_OPTIONS: DebugFormatOptions = {
     processName: 'test',
@@ -24,15 +24,15 @@ function doTransform(info: any, options: DebugFormatOptions = {}) {
 describe('DebugFormat', function () {
     const defaultChalk = chalk.level;
 
+    const date = dateToString(new Date(NOW));
+
     beforeEach(function () {
-        const sandbox = (this.sandbox = sinon.createSandbox());
-        this.dateSpy = sandbox.spy(global, 'Date');
-        this.date = () => dateToString(this.dateSpy.returnValues[0]);
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(1635964932940));
         chalk.level = 3;
     });
 
     afterEach(function () {
-        this.sandbox.restore();
         chalk.level = defaultChalk;
     });
 
@@ -42,7 +42,7 @@ describe('DebugFormat', function () {
             message: 'Hello world!',
         });
 
-        expect(result).to.equal(`${this.date()} test[${process.pid}] INFO:    Hello world!`);
+        expect(result).to.equal(`${date} test[${process.pid}] INFO:    Hello world!`);
     });
 
     it('should format a message with some extra fields', function () {
@@ -53,7 +53,7 @@ describe('DebugFormat', function () {
         });
 
         expect(result).to.equal(
-            `${this.date()} test[${process.pid}] INFO:    Hello world!\n` +
+            `${date} test[${process.pid}] INFO:    Hello world!\n` +
                 '    account: {"name":"foo"}'
         );
     });
@@ -69,7 +69,7 @@ describe('DebugFormat', function () {
         });
 
         expect(result).to.equal(
-            `${this.date()} test[${process.pid}] INFO:    Hello world!\n` +
+            `${date} test[${process.pid}] INFO:    Hello world!\n` +
                 '    zero: 0\n' +
                 '    not_true: false'
         );
@@ -89,7 +89,7 @@ describe('DebugFormat', function () {
         );
 
         expect(result).to.equal(
-            `${this.date()} test[${process.pid}] INFO:    Hello world!\n` +
+            `${date} test[${process.pid}] INFO:    Hello world!\n` +
                 '    err: Error: boom\n' +
                 '        [truncated]'
         );
@@ -109,7 +109,7 @@ describe('DebugFormat', function () {
             }
         );
 
-        expect(result).to.equal(`${this.date()} test[${process.pid}] FOO: Hello world!`);
+        expect(result).to.equal(`${date} test[${process.pid}] FOO: Hello world!`);
     });
 
     it('should colorize a message', function () {
@@ -129,7 +129,7 @@ describe('DebugFormat', function () {
         );
 
         expect(result).to.equal(
-            `\u001b[32m${this.date()} test[${process.pid}] INFO:   \u001b[39m ` +
+            `\u001b[32m${date} test[${process.pid}] INFO:   \u001b[39m ` +
                 '\u001b[32mHello world!\u001b[39m\n' +
                 '\u001b[32m    account: {"name":"foo"}\u001b[39m'
         );
@@ -152,7 +152,7 @@ describe('DebugFormat', function () {
         );
 
         expect(result).to.equal(
-            `\u001b[38;2;170;0;255m${this.date()} test[${process.pid}] INFO:   \u001b[39m ` +
+            `\u001b[38;2;170;0;255m${date} test[${process.pid}] INFO:   \u001b[39m ` +
                 `\u001b[38;2;170;0;255mHello world!\u001b[39m\n` +
                 `\u001b[38;2;170;0;255m    account: {"name":"foo"}\u001b[39m`
         );
@@ -175,7 +175,7 @@ describe('DebugFormat', function () {
         );
 
         expect(result).to.equal(
-            `\u001b[46m${this.date()} test[${process.pid}] INFO:   \u001b[49m ` +
+            `\u001b[46m${date} test[${process.pid}] INFO:   \u001b[49m ` +
                 `\u001b[46mHello world!\u001b[49m\n` +
                 `\u001b[46m    account: {"name":"foo"}\u001b[49m`
         );
@@ -201,7 +201,7 @@ describe('DebugFormat', function () {
         }
         expected += '...';
 
-        expect(result).to.equal(`${this.date()} test[${process.pid}] INFO:    Hello\n` + expected);
+        expect(result).to.equal(`${date} test[${process.pid}] INFO:    Hello\n` + expected);
     });
 
     it('should truncate long value strings with specified terminalWidth', function () {
@@ -222,7 +222,7 @@ describe('DebugFormat', function () {
         );
 
         expect(result).to.equal(
-            `${this.date()} test[${process.pid}] INFO:    Hello\n` +
+            `${date} test[${process.pid}] INFO:    Hello\n` +
                 '    longValue: "start----------------------------------------------...'
         );
     });
