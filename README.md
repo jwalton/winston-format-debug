@@ -17,18 +17,18 @@ import winston from 'winston';
 import debugFormat from 'winston-format-debug';
 
 const logger = winston.createLogger({
-    levels: winston.config.syslog.levels,
-    level: 'info',
-    transports: [
-        new winston.transports.Console({
-            format: winston.format.combine(
-                debugFormat({
-                    levels: winston.config.syslog.levels,
-                    colors: winston.config.syslog.colors
-                })
-            )
+  levels: winston.config.syslog.levels,
+  level: 'info',
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        debugFormat({
+          levels: winston.config.syslog.levels,
+          colors: winston.config.syslog.colors,
         })
-    ]
+      ),
+    }),
+  ],
 });
 ```
 
@@ -36,22 +36,28 @@ const logger = winston.createLogger({
 
 ### processName
 
-The name of the process.  If not specified, `winston-format-debugger` will
-attempt to figure this out from `process.argv`.
+The name of the process. If not specified, `winston-format-debugger` will attempt to figure this out from `process.argv`.
 
 ### levels
 
-A hash where keys are level names, and values are level numbers.  This is the
-same `levels` you pass to `winston.createLogger({levels})`.  If not specified,
-defaults to `winston.config.npm.levels`.
+A hash where keys are level names, and values are level numbers. This is the same `levels` you pass to `winston.createLogger({levels})`. If not specified, defaults to `winston.config.npm.levels`.
 
 ### colors
 
-Colors to use to colorize things.  You can also set `colors` to `false` to disable
-all colors.  If not specified, defaults to `winston.config.npm.colors`.  You can
-specify any color from [the Winston colors](https://github.com/winstonjs/winston#using-custom-logging-levels),
-or any of the standard colors or modifiers from [chalk](https://github.com/chalk/chalk),
-as well as hex codes.
+Colors to use to colorize things. You can also set `colors` to `false` to disable all colors. If not specified, defaults to `winston.config.npm.colors`. You can specify any color from [the Winston colors](https://github.com/winstonjs/winston#using-custom-logging-levels), or any of the standard colors or modifiers from [chalk](https://github.com/chalk/chalk), as well as hex codes.
+
+### skip
+
+By default, `winston-format-debug` will print all values in your Winston log as JSON objects (except Errors, which will be transformed into stack traces). If there are specific values you do not want to print, you can skip them with `skip`. This can be either an array of property names, or a `fn(key, value): boolean` that returns true if a property name should be skipped.
+
+For example, the object `{message: "Hello World", foo: {bar: 7}}` would normally be printed as:
+
+```txt
+Nov 3 14:42:12 test[69138] INFO:    Hello world!
+    foo: {bar: 7}
+```
+
+If you pass `skip: ["foo"]`, then the "foo" field would not be printed. Note that 'level', 'message', '@timestamp', and 'name' are always skipped.
 
 ### colorizePrefix, colorizeMessage, colorizeValues
 
@@ -63,21 +69,21 @@ Jun 28 20:55:16 process[7998] INFO: Hello world
 ```
 
 `colorizePrefix` controls whether or not the date, process name, and PID are
-colorized (defaults to false).  `colorizeMessage` controls the text of the
-message (defaults to true).  `colorizeValues` controls wether non-message values
+colorized (defaults to false). `colorizeMessage` controls the text of the
+message (defaults to true). `colorizeValues` controls wether non-message values
 are colorized (defaults to true).
 
 These options are all ignored unless the `colors` option is passed in.
 
 ### basePath
 
-This is the root of your project.  This is used to strip prefixes from filenames,
+This is the root of your project. This is used to strip prefixes from filenames,
 in stack traces, and to decide which files are part of "your code" and which
 are not.
 
 ### maxExceptionLines
 
-The maximum number of lines to show in a stack trace.  If not specified,
+The maximum number of lines to show in a stack trace. If not specified,
 defaults to unlimited.
 
 ### terminalWidth
@@ -85,41 +91,37 @@ defaults to unlimited.
 The maximum width to print for values (other than `message`).
 
 Any "extra values" in the info object from winston will be printed, but
-each (aside from errors) are truncated to a single line.  If specified, this
-is the width to truncate to.  In a TTY, defaults to `process.stdout.columns`.
+each (aside from errors) are truncated to a single line. If specified, this
+is the width to truncate to. In a TTY, defaults to `process.stdout.columns`.
 Otherwise, defaults to 80.
 
 ## Special fields
 
-* level, message - Defined by winston.
-* @timestamp - If present, this will be ignored.
-* name - Assumed to be the logger name.  This will be printed along with the process name.
+- level, message - Defined by winston.
+- @timestamp - If present, this will be ignored.
+- name - Assumed to be the logger name. This will be printed along with the process name.
 
 ## Prefixers and Stringifiers
 
 [bunyan-debug-stream](https://github.com/benbria/bunyan-debug-stream) has support
 for "prefixers" and "stringifiers" which can be used to customize the log output.
 These are not required in Winston, though, as you can easily write a `format`
-which edits your data.  For example, if you had an `accountName` field, you
+which edits your data. For example, if you had an `accountName` field, you
 could do the same as a prefixer with:
 
 ```js
 import winston from 'winston';
 
-const accountPrefixer = winston.format(info => {
-    info.message = `[${info.account}] ${info.message}`;
-    return info;
+const accountPrefixer = winston.format((info) => {
+  info.message = `[${info.account}] ${info.message}`;
+  return info;
 });
 
 const logger = winston.createLogger({
-    transports: [
-        new winston.transports.Console({
-            format: winston.format.combine(
-                accountPrefixer(),
-                debugFormat()
-            )
-        })
-    ]
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(accountPrefixer(), debugFormat({ skip: ['account'] })),
+    }),
+  ],
 });
-
 ```

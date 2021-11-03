@@ -53,8 +53,39 @@ describe('DebugFormat', function () {
         });
 
         expect(result).to.equal(
-            `${date} test[${process.pid}] INFO:    Hello world!\n` +
-                '    account: {"name":"foo"}'
+            `${date} test[${process.pid}] INFO:    Hello world!\n` + '    account: {"name":"foo"}'
+        );
+    });
+
+    it('should skip extra fields', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                account: { name: 'foo' },
+                banana: 'joe',
+            },
+            { skip: ['account'] }
+        );
+
+        expect(result).to.equal(
+            `${date} test[${process.pid}] INFO:    Hello world!\n` + '    banana: "joe"'
+        );
+    });
+
+    it('should skip extra fields with a function', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                account: { name: 'foo' },
+                banana: 'joe',
+            },
+            { skip: (key) => key === 'account' }
+        );
+
+        expect(result).to.equal(
+            `${date} test[${process.pid}] INFO:    Hello world!\n` + '    banana: "joe"'
         );
     });
 
