@@ -36,7 +36,7 @@ const logger = winston.createLogger({
 
 ### processName
 
-The name of the process. If not specified, `winston-format-debugger` will attempt to figure this out from `process.argv`.
+The name of the process. If not specified, `winston-format-debugger` will attempt to figure this out from `process.argv`.  If specified as an empty string, the process name will be hidden in the output.
 
 ### levels
 
@@ -45,6 +45,10 @@ A hash where keys are level names, and values are level numbers. This is the sam
 ### colors
 
 Colors to use to colorize things. You can also set `colors` to `false` to disable all colors. If not specified, defaults to `winston.config.npm.colors`. You can specify any color from [the Winston colors](https://github.com/winstonjs/winston#using-custom-logging-levels), or any of the standard colors or modifiers from [chalk](https://github.com/chalk/chalk), as well as hex codes.
+
+### showPID
+
+Defaults to true.  If false, the PID will not be shown in the output.
 
 ### skip
 

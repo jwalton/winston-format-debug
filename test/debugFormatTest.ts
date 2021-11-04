@@ -257,4 +257,48 @@ describe('DebugFormat', function () {
                 '    longValue: "start----------------------------------------------...'
         );
     });
+
+    it('should hide process name', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                account: { name: 'foo' },
+                banana: 'joe',
+            },
+            { processName: '', skip: ['account'] }
+        );
+
+        expect(result).to.equal(
+            `${date} [${process.pid}] INFO:    Hello world!\n` + '    banana: "joe"'
+        );
+    });
+
+    it('should hide PID', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                account: { name: 'foo' },
+                banana: 'joe',
+            },
+            { showPID: false, skip: ['account'] }
+        );
+
+        expect(result).to.equal(`${date} test INFO:    Hello world!\n` + '    banana: "joe"');
+    });
+
+    it('should hide PID and process name', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                account: { name: 'foo' },
+                banana: 'joe',
+            },
+            { processName: '', showPID: false, skip: ['account'] }
+        );
+
+        expect(result).to.equal(`${date} INFO:    Hello world!\n` + '    banana: "joe"');
+    });
 });

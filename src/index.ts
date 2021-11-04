@@ -10,6 +10,7 @@ export interface DebugFormatOptions {
     levels?: { [name: string]: number };
     colors?: { [name: string]: string | string[] } | false;
     processName?: string;
+    showPID?: boolean;
     basePath?: string;
     maxExceptionLines?: number | 'auto';
     colorizePrefix?: boolean;
@@ -70,11 +71,17 @@ export class DebugFormat {
     }
 
     _getPrefix(info: any, options: DebugFormatOptions) {
-        const processName = options.processName || this._processName;
-        const loggerName = info.name ? `:${info.name}` : '';
+        let name = options.processName ?? this._processName;
+        if (info.name) {
+            if (name) {
+                name += ':';
+            }
+            name += `${info.name}`;
+        }
         const date = dateToString(new Date());
         const level: string = info[LEVEL] || info.level || 'info';
-        const pid = process.pid;
+        const pid = options.showPID ?? true ? `[${process.pid}]` : '';
+        const space = name || pid ? ' ' : '';
 
         // If `info.level` is defined, use it for the level label - just in
         // case some previous formatter has colorized it or done something
@@ -83,7 +90,7 @@ export class DebugFormat {
             `${(info.level || level).toUpperCase()}:`,
             this._maxLevelLength + 1
         );
-        return `${date} ${processName}${loggerName}[${pid}] ${levelLabel}`;
+        return `${date} ${name}${pid}${space}${levelLabel}`;
     }
 
     _getValues(info: any, options: DebugFormatOptions) {
