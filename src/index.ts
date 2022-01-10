@@ -1,4 +1,4 @@
-import exceptionFormatter from 'exception-formatter';
+import { formatException } from './exceptionUtils';
 import * as path from 'path';
 import { configs, LEVEL, MESSAGE } from 'triple-beam';
 import { applyColors, dateToString, rpad } from './utils';
@@ -125,14 +125,11 @@ export class DebugFormat {
     }
 
     _formatError(err: Error, options: DebugFormatOptions): string {
-        const formatOptions = {
-            format: options.colors ? 'ansi' : 'ascii',
-            colors: false,
-            basepath: options.basePath || this._basepath,
+        const formatted = formatException(err, {
+            color: !!options.colors,
+            basePath: options.basePath || this._basepath,
             maxLines: options.maxExceptionLines,
-        };
-
-        const formatted = exceptionFormatter(err, formatOptions);
+        });
 
         return formatted.split('\n').join(`\n${INDENT}`);
     }
