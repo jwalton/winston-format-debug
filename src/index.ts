@@ -3,7 +3,6 @@ import * as path from 'path';
 import { configs, LEVEL, MESSAGE } from 'triple-beam';
 import { applyColors, dateToString, rpad } from './utils';
 
-const INDENT = '    ';
 const SKIP_VALUES = ['level', 'message', '@timestamp', 'name'];
 
 export interface DebugFormatOptions {
@@ -12,6 +11,7 @@ export interface DebugFormatOptions {
     processName?: string;
     showPID?: boolean;
     basePath?: string;
+    indent?: number;
     maxExceptionLines?: number | 'auto';
     colorizePrefix?: boolean;
     colorizeMessage?: boolean;
@@ -30,6 +30,7 @@ export class DebugFormat {
     private readonly _maxLevelLength: number;
     private readonly _basepath: string;
     private readonly _colors: { [name: string]: string | string[] } | false;
+    private readonly _indent: string;
 
     private _skip: string[] | ((key: string, value: unknown) => boolean) | undefined;
     private _skipFn: ((key: string, value: unknown) => boolean) | undefined;
@@ -50,6 +51,9 @@ export class DebugFormat {
         this._colors = options.colors === false ? false : options.colors || configs.npm.colors;
 
         this._basepath = process.cwd();
+
+        const indentSize = options.indent ?? 4;
+        this._indent = ''.padEnd(indentSize, ' ');
     }
 
     private _skipKey(key: string, value: unknown): boolean {
@@ -103,7 +107,7 @@ export class DebugFormat {
 
             const value = info[key];
             if (value instanceof Error) {
-                values.push(`${INDENT}${key}: ${this._formatError(value, options)}`);
+                values.push(`${this._indent}${key}: ${this._formatError(value, options)}`);
             } else {
                 const valueString = value != null && JSON.stringify(value);
                 if (valueString) {
@@ -112,7 +116,7 @@ export class DebugFormat {
                         'terminalWidth' in this.options
                             ? this.options.terminalWidth
                             : process.stdout.columns || 80;
-                    let line = `${INDENT}${key}: ${valueString}`;
+                    let line = `${this._indent}${key}: ${valueString}`;
                     if (cols && line.length >= cols) {
                         line = line.slice(0, cols - 3) + '...';
                     }
@@ -131,7 +135,7 @@ export class DebugFormat {
             maxLines: options.maxExceptionLines,
         });
 
-        return formatted.split('\n').join(`\n${INDENT}`);
+        return formatted.split('\n').join(`\n${this._indent}`);
     }
 
     transform(info: any, options: DebugFormatOptions) {

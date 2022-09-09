@@ -79,7 +79,7 @@ describe('exception formatting', () => {
         );
     });
 
-    it('should do something sensible when there is no"own" code', () => {
+    it('should do something sensible when there is no "own" code', () => {
         const formatted = formatException(STACK, {
             maxLines: 'auto',
             basePath: '/foo/baz/qux',

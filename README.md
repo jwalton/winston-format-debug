@@ -36,7 +36,7 @@ const logger = winston.createLogger({
 
 ### processName
 
-The name of the process. If not specified, `winston-format-debugger` will attempt to figure this out from `process.argv`.  If specified as an empty string, the process name will be hidden in the output.
+The name of the process. If not specified, `winston-format-debugger` will attempt to figure this out from `process.argv`. If specified as an empty string, the process name will be hidden in the output.
 
 ### levels
 
@@ -48,7 +48,7 @@ Colors to use to colorize things. You can also set `colors` to `false` to disabl
 
 ### showPID
 
-Defaults to true.  If false, the PID will not be shown in the output.
+Defaults to true. If false, the PID will not be shown in the output.
 
 ### skip
 
@@ -84,6 +84,10 @@ These options are all ignored unless the `colors` option is passed in.
 This is the root of your project. This is used to strip prefixes from filenames,
 in stack traces, and to decide which files are part of "your code" and which
 are not.
+
+### indent
+
+Set the indent size. Defaults to 4.
 
 ### maxExceptionLines
 

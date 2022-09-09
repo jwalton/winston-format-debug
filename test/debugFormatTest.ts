@@ -57,6 +57,21 @@ describe('DebugFormat', function () {
         );
     });
 
+    it('should allow setting the indent size', function () {
+        const result = doTransform(
+            {
+                level: 'info',
+                message: 'Hello world!',
+                account: { name: 'foo' },
+            },
+            { indent: 2 }
+        );
+
+        expect(result).to.equal(
+            `${date} test[${process.pid}] INFO:    Hello world!\n` + '  account: {"name":"foo"}'
+        );
+    });
+
     it('should skip extra fields', function () {
         const result = doTransform(
             {
