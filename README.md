@@ -8,7 +8,7 @@
 ## What is it?
 
 This is a format for console logging for [winston > 3.x.x](https://github.com/winstonjs/winston).
-It's based loosely on [bunyan-debug-stream](https://github.com/benbria/bunyan-debug-stream).
+It's based loosely on [bunyan-debug-stream](https://github.com/jwalton/bunyan-debug-stream).
 
 ## Usage
 
@@ -107,7 +107,7 @@ Otherwise, defaults to 80.
 
 ## Prefixers and Stringifiers
 
-[bunyan-debug-stream](https://github.com/benbria/bunyan-debug-stream) has support
+[bunyan-debug-stream](https://github.com/jwalton/bunyan-debug-stream) has support
 for "prefixers" and "stringifiers" which can be used to customize the log output.
 These are not required in Winston, though, as you can easily write a `format`
 which edits your data. For example, if you had an `accountName` field, you
