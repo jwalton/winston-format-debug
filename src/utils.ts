@@ -1,15 +1,15 @@
-import chalk from 'chalk';
+import chalk, { type ColorName, type ModifierName } from 'chalk';
 
-export function lpad(str: any, count: number, fill = ' ') {
-    str = `${str}`;
+export function lpad(v: unknown, count: number, fill = ' ') {
+    let str = `${v}`;
     while (str.length < count) {
         str = fill + str;
     }
     return str;
 }
 
-export function rpad(str: any, count: number, fill = ' ') {
-    str = `${str}`;
+export function rpad(v: unknown, count: number, fill = ' ') {
+    let str = `${v}`;
     while (str.length < count) {
         str = str + fill;
     }
@@ -17,26 +17,27 @@ export function rpad(str: any, count: number, fill = ' ') {
 }
 
 // Applies one or more colors to a message, and returns the colorized message.
-export function applyColors(message: string, colorList: string | string[]) {
-    if (!message) {
+export function applyColors<T>(message: T, colorList: string | string[]): T | string {
+    if (!message || typeof message !== 'string') {
         return message;
     }
+    let m: string = message;
 
     if (typeof colorList === 'string') {
-        message = applyColor(message, colorList);
+        m = applyColor(m, colorList);
     } else {
         for (const color of colorList) {
-            message = applyColor(message, color);
+            m = applyColor(m, color);
         }
     }
 
-    return message;
+    return m;
 }
 
 function applyColor(message: string, color: string) {
     const chalkColor = COLOR_TRANSLATIONS[color];
     if (chalkColor) {
-        return (chalk[chalkColor] as any)(message);
+        return chalk[chalkColor](message);
     } else if (color.startsWith('#')) {
         return chalk.hex(color)(message);
     } else {
@@ -56,7 +57,7 @@ export function dateToString(date: Date) {
     return [MONTHS[date.getMonth()], date.getDate(), time].join(' ');
 }
 
-const COLOR_TRANSLATIONS: { [key: string]: keyof typeof chalk | undefined } = {
+const COLOR_TRANSLATIONS: { [key: string]: ColorName | ModifierName | undefined } = {
     // Valid colors from winston
     black: 'black',
     red: 'red',

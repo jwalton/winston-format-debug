@@ -1,8 +1,6 @@
-import chai from 'chai';
+import { expect } from 'chai';
 import chalk from 'chalk';
-import { formatException } from '../src/exceptionUtils';
-
-const { expect } = chai;
+import { formatException } from '../src/exceptionUtils.js';
 
 const STACK = `Error: Error message
     at Foo.bar [as eval] (/Users/jwalton/dev/project/index.js:432:12)

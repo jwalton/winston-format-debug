@@ -1,7 +1,8 @@
-import { formatException } from './exceptionUtils';
 import * as path from 'path';
 import { configs, LEVEL, MESSAGE } from 'triple-beam';
-import { applyColors, dateToString, rpad } from './utils';
+import type { Logform } from 'winston';
+import { formatException } from './exceptionUtils.js';
+import { applyColors, dateToString, rpad } from './utils.js';
 
 const SKIP_VALUES = ['level', 'message', '@timestamp', 'name'];
 
@@ -43,10 +44,7 @@ export class DebugFormat {
 
         const levels = options.levels || configs.npm.levels;
         const levelNames = Object.keys(levels);
-        this._maxLevelLength = Math.max.apply(
-            Math,
-            levelNames.map((s) => s.length)
-        );
+        this._maxLevelLength = Math.max(...levelNames.map((s) => s.length));
 
         this._colors = options.colors === false ? false : options.colors || configs.npm.colors;
 
@@ -74,7 +72,7 @@ export class DebugFormat {
         return false;
     }
 
-    _getPrefix(info: any, options: DebugFormatOptions) {
+    _getPrefix(info: Logform.TransformableInfo, options: DebugFormatOptions) {
         let name = options.processName ?? this._processName;
         if (info.name) {
             if (name) {
@@ -84,7 +82,7 @@ export class DebugFormat {
         }
         const date = dateToString(new Date());
         const level: string = info[LEVEL] || info.level || 'info';
-        const pid = options.showPID ?? true ? `[${process.pid}]` : '';
+        const pid = (options.showPID ?? true) ? `[${process.pid}]` : '';
         const space = name || pid ? ' ' : '';
 
         // If `info.level` is defined, use it for the level label - just in
@@ -97,7 +95,7 @@ export class DebugFormat {
         return `${date} ${name}${pid}${space}${levelLabel}`;
     }
 
-    _getValues(info: any, options: DebugFormatOptions) {
+    _getValues(info: Logform.TransformableInfo, options: DebugFormatOptions) {
         const values = [];
         for (const key of Object.keys(info)) {
             // Skip fields we don't care about
@@ -138,7 +136,7 @@ export class DebugFormat {
         return formatted.split('\n').join(`\n${this._indent}`);
     }
 
-    transform(info: any, options: DebugFormatOptions) {
+    transform(info: Logform.TransformableInfo, options: DebugFormatOptions) {
         const level: string = info[LEVEL] || info.level || 'info';
 
         let prefix = this._getPrefix(info, options);

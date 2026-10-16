@@ -1,10 +1,13 @@
-module.exports = {
+export default {
     // Transforms tell jest how to process our non-javascript files.
-    // Here we're using babel for .js and .jsx files, and ts-jest for
-    // .ts and .tsx files.  You *can* just use babel-jest for both, if
-    // you already have babel set up to compile typescript files.
+    // Here we're using ts-jest for .ts and .tsx files, compiled as ES modules.
+    extensionsToTreatAsEsm: ['.ts'],
     transform: {
-        '^.+\\.tsx?$': 'ts-jest',
+        '^.+\\.tsx?$': ['ts-jest', { useESM: true, tsconfig: 'test/tsconfig.json' }],
+    },
+    // Map relative `.js` imports back to their `.ts` sources.
+    moduleNameMapper: {
+        '^(\\.{1,2}/.*)\\.js$': '$1',
     },
     // Tells Jest what folders to ignore for tests
     testPathIgnorePatterns: [`node_modules`, `\\.cache`],

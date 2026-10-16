@@ -1,9 +1,11 @@
+import { jest } from '@jest/globals';
 import { expect } from 'chai';
 import chalk from 'chalk';
 import * as path from 'path';
 import { configs, LEVEL, MESSAGE } from 'triple-beam';
-import { DebugFormatOptions, default as debugFormat } from '../src';
-import { dateToString } from '../src/utils';
+import type { Logform } from 'winston';
+import { default as debugFormat, DebugFormatOptions } from '../src/index.js';
+import { dateToString } from '../src/utils.js';
 
 const NOW = 1635964932940;
 
@@ -12,7 +14,7 @@ const DEFAULT_OPTIONS: DebugFormatOptions = {
     colors: false,
 };
 
-function doTransform(info: any, options: DebugFormatOptions = {}) {
+function doTransform(info: Logform.TransformableInfo, options: DebugFormatOptions = {}) {
     const formatOptions = Object.assign({}, DEFAULT_OPTIONS, options);
     const format = debugFormat(options);
     info[LEVEL] = info.level;
@@ -130,7 +132,7 @@ describe('DebugFormat', function () {
             },
             {
                 maxExceptionLines: 0,
-                basePath: path.resolve(__dirname, '..'),
+                basePath: path.resolve(import.meta.dirname, '..'),
             }
         );
 
