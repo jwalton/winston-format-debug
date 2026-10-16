@@ -1,6 +1,6 @@
 {
     "name": "winston-format-debug",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "Debug formatter for Winston",
     "type": "module",
     "main": "dist/index.js",
