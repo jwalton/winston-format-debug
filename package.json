@@ -1,6 +1,6 @@
 {
     "name": "winston-format-debug",
-    "version": "0.0.0-semantic-release",
+    "version": "1.4.0",
     "description": "Debug formatter for Winston",
     "type": "module",
     "main": "dist/index.js",
@@ -21,8 +21,7 @@
         "test:unittest": "tsc -p test && c8 mocha",
         "lint": "eslint",
         "prepare": "husky install && npm run build",
-        "prepublishOnly": "npm run build && npm test",
-        "semantic-release": "semantic-release"
+        "prepublishOnly": "npm run build && npm test"
     },
     "lint-staged": {
         "{test,src}/**/*.ts": [
@@ -61,7 +60,6 @@
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
-        "@jwalton/semantic-release-config": "^1.0.0",
         "@types/chai": "^5.2.3",
         "@types/mocha": "^10.0.10",
         "@types/node": "^26.6.5",
@@ -74,7 +72,6 @@
         "lint-staged": "^17.6.0",
         "mocha": "^12.0.3",
         "prettier": "^3.9.10",
-        "semantic-release": "^25.0.9",
         "sinon": "^22.1.0",
         "ts-node": "^10.9.2",
         "tsx": "^4.23.15",
