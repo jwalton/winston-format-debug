@@ -86,7 +86,6 @@
     },
     "dependencies": {
         "chalk": "^6.0.1",
-        "sementic-release": "^1.5.1",
         "triple-beam": "^1.4.1"
     }
 }
