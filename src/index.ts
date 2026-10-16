@@ -25,7 +25,7 @@ export interface DebugFormatOptions {
  * Debug formatter intended for logging to console.  This is roughly a port
  * of bunyan-debug-stream.
  */
-export class DebugFormat {
+export class DebugFormat implements Logform.Format {
     options: DebugFormatOptions;
     private readonly _processName: string;
     private readonly _maxLevelLength: number;
@@ -136,7 +136,8 @@ export class DebugFormat {
         return formatted.split('\n').join(`\n${this._indent}`);
     }
 
-    transform(info: Logform.TransformableInfo, options: DebugFormatOptions) {
+    transform(info: Logform.TransformableInfo, opts: unknown): Logform.TransformableInfo {
+        const options = opts as DebugFormatOptions;
         const level: string = info[LEVEL] || info.level || 'info';
 
         let prefix = this._getPrefix(info, options);
