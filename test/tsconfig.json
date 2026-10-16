@@ -4,7 +4,7 @@
         "noEmit": true,
         "isolatedModules": true,
         "rootDir": "..",
-        "types": ["node", "jest"],
+        "types": ["node", "mocha"],
         "typeRoots": [
             "../node_modules/@types",
             "../@types"

@@ -6,33 +6,23 @@
     "configurations": [
         {
             "type": "node",
-            "name": "Jest Tests (current file)",
+            "name": "Mocha Tests (current file)",
             "request": "launch",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "disableOptimisticBPs": true,
-            "program": "${workspaceFolder}/npm-run",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/mocha.js",
             "cwd": "${workspaceFolder}",
-            "args": [
-                "jest",
-                "--runInBand",
-                "${relativeFile}"
-            ]
+            "args": ["--timeout", "999999", "${relativeFile}"]
         },
         {
             "type": "node",
-            "name": "vscode-jest-tests",
+            "name": "Mocha Tests (all)",
             "request": "launch",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "disableOptimisticBPs": true,
-            "program": "${workspaceFolder}/npm-run",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/mocha.js",
             "cwd": "${workspaceFolder}",
-            "args": [
-                "jest",
-                "--runInBand",
-                "--watchAll=false"
-            ]
+            "args": ["--timeout", "999999"]
         }
     ]
 }

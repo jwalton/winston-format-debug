@@ -1,7 +1,7 @@
-import { jest } from '@jest/globals';
 import { expect } from 'chai';
 import chalk from 'chalk';
 import * as path from 'path';
+import * as sinon from 'sinon';
 import { configs, LEVEL, MESSAGE } from 'triple-beam';
 import type { Logform } from 'winston';
 import { default as debugFormat, DebugFormatOptions } from '../src/index.js';
@@ -28,13 +28,15 @@ describe('DebugFormat', function () {
 
     const date = dateToString(new Date(NOW));
 
+    let clock: sinon.SinonFakeTimers;
+
     beforeEach(function () {
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date(1635964932940));
+        clock = sinon.useFakeTimers(new Date(NOW));
         chalk.level = 3;
     });
 
     afterEach(function () {
+        clock.restore();
         chalk.level = defaultChalk;
     });
 
